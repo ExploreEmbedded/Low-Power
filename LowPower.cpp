@@ -43,7 +43,7 @@
 
 #if defined (__AVR__)
 // Only Pico Power devices can change BOD settings through software
-#if defined __AVR_ATmega328P__
+#if defined (__AVR_ATmega328P__)
 #ifndef sleep_bod_disable
 #define sleep_bod_disable() 										\
 do { 																\
@@ -73,7 +73,7 @@ do { 						\
 } while (0);
 
 // Only Pico Power devices can change BOD settings through software
-#if defined __AVR_ATmega328P__
+#if defined (__AVR_ATmega328P__)
 #define	lowPowerBodOff(mode)\
 do { 						\
       set_sleep_mode(mode); \
@@ -217,6 +217,86 @@ void	LowPowerClass::idle(period_t period, adc_t adc, timer2_t timer2,
 	if (usart0 == USART0_OFF)	power_usart0_enable();
 	if (twi == TWI_OFF)			power_twi_enable();
 }
+#endif
+
+/*******************************************************************************
+* Name: idle
+* Description: Putting ATmega328PB into idle state. Please make sure you 
+*			         understand the implication and result of disabling module.
+*
+* Parameters need to be updated
+*
+*******************************************************************************/
+#if defined __AVR_ATmega328PB__
+
+
+void	LowPowerClass::idle(period_t period, adc_t adc, usart0_t usart0, 
+						     spi0_t spi0, timer1_t timer1, usart1_t usart1,
+					         timer0_t timer0, timer2_t timer2,twi0_t twi0)
+{
+	// Temporary clock source variable 
+	unsigned char clockSource = 0;
+	
+	if (timer2 == TIMER2_OFF)
+	{
+		if (TCCR2B & CS22) clockSource |= (1 << CS22);
+		if (TCCR2B & CS21) clockSource |= (1 << CS21);
+		if (TCCR2B & CS20) clockSource |= (1 << CS20);
+	
+		// Remove the clock source to shutdown Timer2
+		TCCR2B &= ~(1 << CS22);
+		TCCR2B &= ~(1 << CS21);
+		TCCR2B &= ~(1 << CS20);
+		
+		power_timer2_disable();
+	}
+	
+	if (adc == ADC_OFF)	
+	{
+		ADCSRA &= ~(1 << ADEN);
+		power_adc_disable();
+	}
+	
+	if (timer1 == TIMER1_OFF)	power_timer1_disable();	
+	if (timer0 == TIMER0_OFF)	power_timer0_disable();	
+	if (spi0 == SPI_OFF)			power_spi0_disable();
+	if (usart0 == USART0_OFF)	power_usart0_disable();
+	if (usart1 == USART1_OFF)	power_usart1_disable();
+	if (twi0 == TWI0_OFF)			power_twi0_disable();
+	
+	if (period != SLEEP_FOREVER)
+	{
+		wdt_enable(period);
+		WDTCSR |= (1 << WDIE);	
+	}
+	
+	lowPowerBodOn(SLEEP_MODE_IDLE);
+	
+	if (adc == ADC_OFF)
+	{
+		power_adc_enable();
+		ADCSRA |= (1 << ADEN);
+	}
+	
+	if (timer2 == TIMER2_OFF)
+	{
+		if (clockSource & CS22) TCCR2B |= (1 << CS22);
+		if (clockSource & CS21) TCCR2B |= (1 << CS21);
+		if (clockSource & CS20) TCCR2B |= (1 << CS20);
+		
+		power_timer2_enable();
+	}
+	
+	if (timer1 == TIMER1_OFF)	power_timer1_enable();	
+	if (timer0 == TIMER0_OFF)	power_timer0_enable();	
+	if (spi0 == SPI_OFF)			power_spi0_enable();
+	if (usart0 == USART0_OFF)	power_usart0_enable();
+	if (usart1 == USART1_OFF)	power_usart1_enable();
+
+	if (twi0 == TWI0_OFF)			power_twi0_enable();
+}
+
+
 #endif
 
 /*******************************************************************************
@@ -744,7 +824,7 @@ void	LowPowerClass::powerDown(period_t period, adc_t adc, bod_t bod)
 	}
 	if (bod == BOD_OFF)	
 	{
-		#if defined __AVR_ATmega328P__
+		#if defined (__AVR_ATmega328P__)
 			lowPowerBodOff(SLEEP_MODE_PWR_DOWN);
 		#else
 			lowPowerBodOn(SLEEP_MODE_PWR_DOWN);
@@ -831,7 +911,7 @@ void	LowPowerClass::powerSave(period_t period, adc_t adc, bod_t bod,
 	
 	if (bod == BOD_OFF)	
 	{
-		#if defined __AVR_ATmega328P__
+		#if (__AVR_ATmega328P__)
 			lowPowerBodOff(SLEEP_MODE_PWR_SAVE);
 		#else
 			lowPowerBodOn(SLEEP_MODE_PWR_SAVE);
@@ -896,7 +976,7 @@ void	LowPowerClass::powerStandby(period_t period, adc_t adc, bod_t bod)
 	
 	if (bod == BOD_OFF)	
 	{
-		#if defined __AVR_ATmega328P__
+		#if defined (__AVR_ATmega328P__)
 			lowPowerBodOff(SLEEP_MODE_STANDBY);
 		#else
 			lowPowerBodOn(SLEEP_MODE_STANDBY);
@@ -974,7 +1054,7 @@ void	LowPowerClass::powerExtStandby(period_t period, adc_t adc, bod_t bod,
 	}
 	if (bod == BOD_OFF)	
 	{
-		#if defined __AVR_ATmega328P__
+		#if defined (__AVR_ATmega328P__)
 			lowPowerBodOff(SLEEP_MODE_EXT_STANDBY);
 		#else
 			lowPowerBodOn(SLEEP_MODE_EXT_STANDBY);

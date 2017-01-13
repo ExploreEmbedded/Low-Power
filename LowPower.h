@@ -3,6 +3,7 @@
 
 #include "Arduino.h"
 
+
 enum period_t
 {
 	SLEEP_15MS,
@@ -72,6 +73,12 @@ enum spi_t
 	SPI_ON
 };
 
+enum spi0_t
+{
+	SPI0_OFF,
+	SPI0_ON
+};
+
 enum usart0_t
 {
 	USART0_OFF,
@@ -102,6 +109,12 @@ enum twi_t
 	TWI_ON
 };
 
+enum twi0_t
+{
+	TWI0_OFF,
+	TWI0_ON
+};
+
 enum usb_t
 {
 	USB_OFF,
@@ -118,12 +131,25 @@ enum idle_t
 class LowPowerClass
 {
 	public:
+	
+	
+	
+
 		#if defined (__AVR__)
 		
-			#if defined (__AVR_ATmega328P__) || defined (__AVR_ATmega168__) 
-				void	idle(period_t period, adc_t adc, timer2_t timer2, 
+			#if defined (__AVR_ATmega328P__) || defined (__AVR_ATmega168__)				
+			void	idle(period_t period, adc_t adc, timer2_t timer2, 
 						     timer1_t timer1, timer0_t timer0, spi_t spi,
 					         usart0_t usart0, twi_t twi);
+							 
+			#elif defined __AVR_ATmega328PB__
+			 void idle(period_t period, adc_t adc, usart0_t usart0, 
+						     spi0_t spi0, timer1_t timer1, usart1_t usart1,
+								 timer0_t timer0, timer2_t timer2,twi0_t twi0);	
+								 
+				
+				
+				
 			#elif defined __AVR_ATmega2560__
 				void	idle(period_t period, adc_t adc, timer5_t timer5, 
 							 timer4_t timer4, timer3_t timer3, timer2_t timer2,
