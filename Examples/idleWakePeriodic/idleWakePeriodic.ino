@@ -16,11 +16,9 @@ void loop()
  // LowPower.idle(SLEEP_8S, ADC_OFF, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF, 
   //              SPI0_OFF, USART0_OFF, TWI_OFF);
 
+ // ATmega328PB
 
-  // ATmega328PB
-
-
-  LowPower.idle(SLEEP_8S, ADC_OFF, USART0_OFF,SPI0_OFF, TIMER1_OFF, USART1_OFF, TIMER0_OFF, TIMER2_OFF,TWI_OFF);
+  LowPower.idle(SLEEP_8S, ADC_OFF, USART0_OFF, SPI0_OFF, TIMER1_OFF, USART1_OFF, TIMER0_OFF, TIMER2_OFF, TWI0_OFF);
 
   // ATmega32U4
   //LowPower.idle(SLEEP_8S, ADC_OFF, TIMER4_OFF, TIMER3_OFF, TIMER1_OFF, 
@@ -39,4 +37,3 @@ void loop()
   // Do something here
   // Example: Read sensor, data logging, data transmission.
 }
-
